@@ -1,4 +1,8 @@
 function getParameterByName(name = '', url = '') {
+  var value = window.localStorage.getItem(name);
+  if (value) {
+    return value;
+  }
   if (!url) url = window.location.href;
   name = name.replace(/[[\]]/g, '\\$&');
   var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
