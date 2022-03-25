@@ -34,6 +34,7 @@ const app = new Vue({
     pipelinesMap: {},
     token: null,
     gitlab: null,
+    branch: null,
     repositories: null,
     loading: false,
     invalidConfig: false,
@@ -70,6 +71,7 @@ const app = new Vue({
       self.gitlab = getParameterByName('gitlab')
       self.token = getParameterByName('token')
       self.ref = getParameterByName('ref')
+      self.branch = getParameterByName('branch')
       self.repositories = []
       self.groups = []
 
@@ -202,21 +204,20 @@ const app = new Vue({
           .then(function (response) {
             self.loading = false
             response.data.projects.forEach(function(project) {
-              if (project.jobs_enabled && !project.archived) {
-                const branch = project.default_branch
-                const projectName = project.name
-                const nameWithNamespace = project.path_with_namespace
-                const data = {
-                  nameWithNamespace: nameWithNamespace,
-                  projectName: projectName,
-                  branch: branch,
-                  key: nameWithNamespace + '/' + branch
-                }
-                const p = { project: data, data: project }
-                if (self.projects[project.path_with_namespace] === undefined) {
-                  self.projects[project.path_with_namespace] = p
-                  self.fetchBuild(p)
-                }
+              if (!project.jobs_enabled && project.archived) return;
+              const branch = self.branch || project.default_branch
+              const projectName = project.name
+              const nameWithNamespace = project.path_with_namespace
+              const data = {
+                nameWithNamespace: nameWithNamespace,
+                projectName: projectName,
+                branch: branch,
+                key: nameWithNamespace + '/' + branch
+              }
+              const p = { project: data, data: project }
+              if (self.projects[project.path_with_namespace] === undefined) {
+                self.projects[project.path_with_namespace] = p
+                self.fetchBuild(p)
               }
             })
           }).catch(onError.bind(self))

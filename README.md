@@ -23,6 +23,7 @@ in the query string:
 - **projects**: a comma separated list of projects in the form GROUP_NAME/PROJECT_NAME/BRANCH_NAME you want to monitor.
 - **groups**: a comma separated list of groups or subgroups
 - **order**: a comma separated list of fields to order projects, optionally followed by .asc or .desc modifier
+- **branch**: override the default branch.
 
 At least one of `groups` or `projects` need to be set.
 
