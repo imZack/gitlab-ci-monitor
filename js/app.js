@@ -205,7 +205,10 @@ const app = new Vue({
             self.loading = false
             response.data.projects.forEach(function(project) {
               if (!project.jobs_enabled && project.archived) return;
-              const branch = self.branch ? self.branch !== null : project.default_branch
+              let branch = self.branch;
+              if (branch == null) {
+                branch = project.default_branch;
+              }
               const projectName = project.name
               const nameWithNamespace = project.path_with_namespace
               const data = {
