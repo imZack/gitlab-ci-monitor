@@ -240,8 +240,14 @@ const app = new Vue({
           if (pipelines.data.length === 0) {
             return
           }
-          const commitId = pipelines.data[0].sha
-          const pipelineId = pipelines.data[0].id
+          let pipelineOffset = 0
+          let pipeline = pipelines.data[pipelineOffset]
+          while (pipeline.status === 'skipped' && pipelines.data.length - (pipelineOffset + 1) > 0) {
+            pipeline = pipelines.data[++pipelineOffset]
+          }
+
+          const commitId = pipeline.sha
+          const pipelineId = pipeline.id
           axios.get('/projects/' + p.data.id + '/repository/commits/' + commitId)
             .then(function(commit) {
               self.updateBuildInfo(p, commit, pipelineId)
