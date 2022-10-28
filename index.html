@@ -68,6 +68,7 @@
                   <a target="_blank" title="overview of {{pipeline.project}}" href="https://{{gitlab}}/{{pipeline.project_path}}/">{{ pipeline.project }}</a> <a target="_blank" title="file tree branch {{pipeline.branch}} of {{pipeline.project}}" href="https://{{gitlab}}/{{pipeline.project_path}}/tree/{{pipeline.branch}}">({{ pipeline.branch }})</a>
                 </div>
                 <div class="meta">{{ pipeline.author }}</div>
+                <div v-for="ref in pipeline.refs" class="ui horizontal label">{{ref}}</div>
                 <div class="description">
                   <a target="_blank" title="pipeline {{ pipeline.id }} of {{ pipeline.project }}" href="https://{{gitlab}}/{{pipeline.project_path}}/pipelines/{{pipeline.id}}">
                     <div class="title">{{ pipeline.title }}</div>

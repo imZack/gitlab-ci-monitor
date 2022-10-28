@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import axios from 'axios';
-import { format, distanceInWordsToNow } from 'date-fns';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
 
 import '../css/style.css';
 
@@ -21,7 +21,7 @@ const onError = function (error) {
 }
 
 function lastRun() {
-  return format(Date.now(), 'YYYY-MM-DD - HH:mm:ss')
+  return format(Date.now(), 'yyyy-MM-dd - HH:mm:ss')
 }
 
 // Used by vue
@@ -250,19 +250,27 @@ const app = new Vue({
           const pipelineId = pipeline.id
           axios.get('/projects/' + p.data.id + '/repository/commits/' + commitId)
             .then(function(commit) {
-              self.updateBuildInfo(p, commit, pipelineId)
+              axios.get(`/projects/${p.data.id}/repository/commits/${commitId}/refs`)
+                .then(function(refs){
+                  const branchRefs = refs.data.filter(function(ref) {
+                    return ref.type === 'branch'
+                  })
+                  self.updateBuildInfo(p, commit, pipelineId, branchRefs)
+                })
             })
             .catch(onError.bind(self))
         })
         .catch(onError.bind(self))
     },
-    updateBuildInfo: function(p, commit, pipelineId) {
+    updateBuildInfo: function(p, commit, pipelineId, branchRefs) {
       const self = this
+
+      axios.get('/projects/' + p.data.id + '/pipelines/' + pipelineId)
 
       axios.get('/projects/' + p.data.id + '/pipelines/' + pipelineId)
         .then(function(pipeline) {
           const startedAt = pipeline.data.started_at
-          const startedFromNow = distanceInWordsToNow(startedAt, { addSuffix: true })
+          const startedFromNow = formatDistanceToNow(parseISO(startedAt), { addSuffix: true })
           const b = self.pipelinesMap[p.project.key]
           if (b !== undefined) {
             b.id = pipeline.data.id
@@ -283,7 +291,8 @@ const app = new Vue({
               project_path: p.project.nameWithNamespace,
               branch: p.project.branch,
               title: commit.data.title,
-              sha1: commit.data.id
+              sha1: commit.data.id,
+              refs: branchRefs.map((ref) => ref.name),
             }
             self.pipelines.push(project)
             self.pipelinesMap[p.project.key] = project
