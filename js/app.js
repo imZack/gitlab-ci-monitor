@@ -266,8 +266,6 @@ const app = new Vue({
       const self = this
 
       axios.get('/projects/' + p.data.id + '/pipelines/' + pipelineId)
-
-      axios.get('/projects/' + p.data.id + '/pipelines/' + pipelineId)
         .then(function(pipeline) {
           const startedAt = pipeline.data.started_at
           const startedFromNow = formatDistanceToNow(parseISO(startedAt), { addSuffix: true })
